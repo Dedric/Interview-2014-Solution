@@ -1,6 +1,7 @@
-// better used in bash/term, g++ compiled, use file pipe as input
+// use file as input
 
 # include <iostream>
+# include <fstream>
 # include <string>
 # include <queue>
 # include <map>
@@ -118,20 +119,24 @@ bool MemberSeparable::separable()
 int main()
 {
 	int T, M;
+	ifstream icin;
+	icin.open("A-small-practice-2.in");
+	ofstream ocout;
+	ocout.open("A-small-practice-2.out");
 
-	cin>>T;
+	icin>>T;
 	string* output = new string[T]; // output
 	string* namelist;
 	
 	int i = 0, j=0;
 	for(i=0;i<T;i++)
 	{
-		cin>>M;
+		icin>>M;
 		namelist = new string[2*M];
 		for(j=0;j<M;j++)
 		{
-			cin>>namelist[j*2];
-			cin>>namelist[j*2+1];
+			icin>>namelist[j*2];
+			icin>>namelist[j*2+1];
 		}
 
 		MemberSeparable result(namelist,2*M);
@@ -148,11 +153,11 @@ int main()
 	// output result
 	for(i=0;i<T;i++)
 	{
-		cout<<"Case #"<<(i+1)<<": "<<output[i]<<endl;
+		ocout<<"Case #"<<(i+1)<<": "<<output[i]<<endl;
 	}
 
-	//icin.close();
-	//ocout.close();
+	icin.close();
+	ocout.close();
 
 	return 1;
 }

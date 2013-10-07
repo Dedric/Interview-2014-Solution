@@ -31,6 +31,8 @@ int main()
 		}
 
 		cout<<"Case #"<<(iter+1)<<": "<<count<<endl;
+		delete []namelist;
+		namelist = NULL;
 
 	}
 	return 1;

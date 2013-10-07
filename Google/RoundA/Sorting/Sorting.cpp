@@ -22,10 +22,11 @@ int main()
 	vector<int> Alex,Bob;
 	int tmp_value;
 	int Alex_index=0, Bob_index=0;
+	int *order;
 	for(int i =0;i<T;i++)
 	{
 		cin>>N;
-		int *order = new int[N];
+		order = new int[N];
 		Alex.clear();
 		Bob.clear();
 		for(int j=0;j<N;j++)
@@ -67,6 +68,8 @@ int main()
 			}
 		}
 		cout<<endl;
+		delete []order;
+		order = NULL;
 	}
 	return 1;
 }

@@ -1,167 +1,179 @@
 # include <iostream>
-# include <string>
-# include <cstdlib>
-# include <vector>
 # include <map>
+# include <string>
+# include <vector>
 
 using namespace std;
 
-class readphone
+int vec_min(vector<int> result)
 {
-public:
-	
-	readphone(string tele,string format):telephone(tele),readformat(format)
+	vector<int>::iterator iter;
+	for(iter = result.begin(); iter != result.end();) // delete -1 in result
 	{
-		output = "";
-		alphabetic();
-		split(format);
-		read_out(tele);
-	}
-	~readphone(){}
-
-	int alphabetic()
-	{
-		phone.insert(pair<char,string>('0',"zero"));
-		phone.insert(pair<char,string>('1',"one"));
-		phone.insert(pair<char,string>('2',"two"));
-		phone.insert(pair<char,string>('3',"three"));
-		phone.insert(pair<char,string>('4',"four"));
-		phone.insert(pair<char,string>('5',"five"));
-		phone.insert(pair<char,string>('6',"six"));
-		phone.insert(pair<char,string>('7',"seven"));
-		phone.insert(pair<char,string>('8',"eight"));
-		phone.insert(pair<char,string>('9',"nine"));
-
-		count.insert(pair<int,string>(1,""));
-		count.insert(pair<int,string>(2,"double "));
-		count.insert(pair<int,string>(3,"triple "));
-		count.insert(pair<int,string>(4,"quadruple "));
-		count.insert(pair<int,string>(5,"quintuple "));
-		count.insert(pair<int,string>(6,"sextuple "));
-		count.insert(pair<int,string>(7,"septuple "));
-		count.insert(pair<int,string>(8,"octuple "));
-		count.insert(pair<int,string>(9,"nonuple "));
-		count.insert(pair<int,string>(10,"decuple "));
-		return 1;
-	}
-
-	int split(string format)
-	{
-		index_num = 1;
-		index_list = new int[telephone.length()];
-		while(true)
+		if(*iter == -1)
 		{
-			index = format.find("-");
-			if (-1 == index)
-			{
-				index_list[index_num-1] = atoi(format.substr(0,format.length()).c_str());
-				break;
-			}
-			
-			index_list[index_num-1] = atoi(format.substr(0,index).c_str());
-			index_num++;
-			format.erase(0,index+1);
-		}
-		return 1;
-	}
-
-	int read_out(string tele)
-	{
-		int start = 0;
-		string tele_sub;
-		for (int i=0;i<index_num;i++)
-		{
-			tele_sub = tele.substr(start,index_list[i]);
-			start = start+index_list[i];
-			read_sub(tele_sub, index_list[i]);
-		}
-		return 1;
-	}
-
-	int read_sub(string tele_sub, int len)
-	{
-		if (len == 1)
-		{
-			cout<<" "<<phone[tele_sub[0]];
+			iter = result.erase(iter);
 		}
 		else
 		{
-			int consective=1;
-			char cur = tele_sub[0];
-			string tmp;
+			iter++;
+		}
+	}
 
-			cur = tele_sub[0];
+	int vec_size = result.size();
+	
+	if (vec_size == 0)
+		return -1;
 
-			for (int i=0;i<len-1;i++)
+	int tmp_min = result[0];
+	for(int i=1;i<vec_size;i++)
+	{
+		tmp_min = min(tmp_min,result[i]);
+	}
+	return tmp_min;
+}
+
+int getDistance(int p, int q, string *room_color, int** room_distance, int N)
+{
+	vector<int> result_vec;
+	int tmp_distance1, tmp_distance2;
+
+	if (room_color[p-1] == room_color[q-1]) // same color
+		return 0;
+	else // different color
+	{
+		result_vec.clear();
+		result_vec.push_back(room_distance[p-1][q-1]);
+		// find the room that connect with room q
+		for(int i=1;i<=N;i++)
+		{
+			if (i==p)
+				continue;
+			if (room_distance[i-1][q-1]!=-1)
 			{
-				if (cur == tele_sub[i+1])
-				{
-					consective++;
-				}
+				tmp_distance1 = getDistance(p,i,room_color,room_distance,N);
+				tmp_distance2 = getDistance(i,q,room_color,room_distance,N);
+				if (tmp_distance1 == -1 || tmp_distance2 == -1)
+					continue;
 				else
-				{
-					if (consective>10)
-					{
-						while(consective--)
-							cout<<" "<<phone[cur];
-					}
-					else
-					{
-						cout<<" "<<count[consective]<<phone[cur];
-					}
-					consective=1;
-					cur = tele_sub[i+1];
-				}
+					result_vec.push_back(tmp_distance1+tmp_distance2);
+			}
+		}
+		return vec_min(result_vec);
+	}
+}
 
-				if (i==len-2)// last one
+class SpaceDefense
+{
+public:
+	SpaceDefense()
+	{
+		Initial();
+		Run();
+		delete_pointer();
+	}
+
+	~SpaceDefense(){}
+
+	int Initial()
+	{
+		cin>>N;
+
+		// define the distance between rooms
+		room_distance = new int*[N];
+		for(int i=0;i<N;i++)
+			room_distance[i] = new int[N];
+		memset(room_distance,-1,N*N); // set the distance at -1, where -1 represents that the two rooms are dis-connected
+
+		room_color = new string[N];
+		color_room.clear();
+		
+		for(int i=0;i<N;i++)
+		{
+			cin>>room_color[i];
+			room_vec.clear();
+			if (color_room.find(room_color[i]) != color_room.end()) // color exists!
+			{
+				room_vec = color_room[room_color[i]];
+			}
+			room_vec.push_back(i);
+			color_room[room_color[i]] = room_vec; // update room vector of the same color
+		}
+
+		cin>>M;
+		for(int i=0;i<M;i++)
+		{
+			cin>>ai;
+			cin>>bi;
+			cin>>room_distance[ai-1][bi-1];
+		}
+
+		// set the distance between the same color rooms at 0
+		for(iter = color_room.begin();iter!=color_room.end();iter++)
+		{
+			room_vec = iter->second;
+			room_vec_size = room_vec.size();
+			for(int i=0;i<room_vec_size-1;i++)
+			{
+				for(int j=i+1;j<room_vec_size;j++)
 				{
-					if (consective>10)
-					{
-						while(consective--)
-							cout<<" "<<phone[cur];
-					}
-					else
-					{
-						cout<<" "<<count[consective]<<phone[cur];
-					}
+					room_distance[room_vec[i]-1][room_vec[j]-1]=0;
+					room_distance[room_vec[j]-1][room_vec[i]-1]=0;
 				}
 			}
 		}
-		
+
+		return 1;
+	}
+
+	int Run()
+	{
+		cin>>S;
+		for(int i=0;i<S;i++)
+		{
+			cin>>pj;
+			cin>>qj;
+			//cout<<getDistance(pj,qj,room_color,room_distance,N)<<endl;
+		}
+		return 1;
+	}
+
+	int delete_pointer()
+	{
+		// delete 
+		delete []room_color;
+		for(int i=0;i<N;i++)
+			delete []room_distance[i];
+		delete []room_distance;
 		return 1;
 	}
 
 private:
-	map<char,string> phone;
-	map<int,string> count;
-	string telephone;
-	string readformat;
-	int index_num, index;
-	int *index_list;
-	string output;
+	int N; // number of rooms in the spaceship
+	int M; // number of turbolifts in the spaceship
+	int S; // number of soliders
+	int ai, bi; // room ai, bi;
+	int pj, qj; 
+
+	string *room_color; // room ---- color
+	map<string,vector<int> > color_room; // color ---- room
+	map<string,vector<int> >::iterator iter;
+	vector<int> room_vec;
+	int room_vec_size;
+	int** room_distance;
 };
-
-
 
 int main()
 {
-	int num=0;
-	cin>>num;
-	//cout<<num<<endl;
-	string tele, format;
-	getline(cin,tele);
-	string tmp="";
+	int T = 0; // number of test cases
+	cin>>T;
 
-	int index_num=0, index;
-	int index_list[3];
-	for (int i=0;i<num;i++)
+	for(int k=0;k<T;k++)
 	{
-		cin>>tele;
-		cin>>format;
-		//cout<<tele<<" "<<format<<endl;
-		cout<<"Case #"<<i+1<<":";
-		readphone result(tele,format);
-		cout<<endl;
+		cout<<"Case #"<<(k+1)<<":"<<endl;
+		SpaceDefense();
+		cout<<endl;	
 	}
+
 	return 1;
 }
